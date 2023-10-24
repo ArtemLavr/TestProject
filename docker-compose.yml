@@ -1,0 +1,41 @@
+version: '3.2'
+
+volumes:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres
+    ports:
+      - "5001:5432"
+    restart: always  
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=artem@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+    restart: always
+
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    restart: always
+    environment:
+      - PYTHONUNBUFFERED=1
